@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PrintBook — Screen Print &amp; Embroidery Shop Job Book</title>
+<style>
+:root{--ink:#1d2733;--mut:#5b6b7b;--line:#d7dee6;--bg:#f4f6f8;--card:#fff;--acc:#0f6fde;--acc2:#0a4f9e;--good:#137a3f;--bad:#b3261e;--warn:#9a6a00;--warnbg:#fff6dd;--badbg:#fdecea}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45}
+header{background:#12395e;color:#fff;padding:12px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+header h1{font-size:19px;margin:0;font-weight:700}
+header .shop{opacity:.85;font-size:13px}
+nav{display:flex;gap:6px;flex-wrap:wrap;padding:10px 16px 0}
+nav button{border:1px solid var(--line);background:#fff;padding:8px 14px;border-radius:20px;cursor:pointer;font-size:14px}
+nav button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+main{padding:14px 16px 40px;max-width:1020px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px}
+.card h2{margin:0 0 10px;font-size:16px}
+.card h3{margin:14px 0 6px;font-size:14px}
+label{display:block;font-size:12.5px;color:var(--mut);margin:8px 0 3px}
+input,select,textarea{width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;font-size:15px;background:#fff}
+textarea{rows:2}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>div{flex:1;min-width:130px}
+.btn{background:var(--acc);color:#fff;border:0;border-radius:7px;padding:10px 16px;font-size:15px;cursor:pointer}
+.btn:hover{background:var(--acc2)}
+.btn.sec{background:#fff;color:var(--acc);border:1px solid var(--acc)}
+.btn.small{padding:6px 10px;font-size:13px;min-height:40px;}
+.btn.danger{background:#fff;color:var(--bad);border:1px solid var(--bad)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{border-bottom:1px solid var(--line);padding:6px 6px;text-align:left;vertical-align:top}
+th{color:var(--mut);font-weight:600;font-size:12.5px}
+td.num,th.num{text-align:right;white-space:nowrap}
+.money{font-variant-numeric:tabular-nums}
+.pricegrid{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.pricebox{flex:1;min-width:150px;border:1px solid var(--line);border-radius:8px;padding:10px;text-align:center}
+.pricebox .lbl{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+.pricebox .amt{font-size:21px;font-weight:700;margin:2px 0}
+.pricebox .pp{font-size:12.5px;color:var(--mut)}
+.pricebox.rec{border-color:var(--acc);background:#eef5ff}
+.warnbox{background:var(--warnbg);border:1px solid #e5cd7a;border-radius:8px;padding:10px;margin-top:10px;color:var(--warn)}
+.badbox{background:var(--badbg);border:1px solid #e5a19c;border-radius:8px;padding:10px;margin-top:10px;color:var(--bad)}
+.okbox{background:#e9f7ee;border:1px solid #9fd4ae;border-radius:8px;padding:10px;margin-top:10px;color:var(--good)}
+.pill{display:inline-block;padding:2px 9px;border-radius:12px;font-size:12px;font-weight:600}
+.pill.quoted{background:#e8eefc;color:#274b9f}.pill.booked{background:#fff0d6;color:#8a5c00}.pill.completed{background:#e2f4e5;color:#137a3f}
+.jobcard{border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:10px}
+.jobcard .top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline}
+.jobcard .nm{font-weight:700}
+.mut{color:var(--mut)} .small{font-size:13px}
+.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.locrow{display:flex;gap:6px;flex-wrap:wrap;align-items:end;border:1px solid var(--line);border-radius:8px;padding:8px;margin-bottom:8px}
+.locrow>div{flex:1;min-width:100px}
+.kpis{display:flex;gap:10px;flex-wrap:wrap}
+.kpi{flex:1;min-width:140px;border:1px solid var(--line);border-radius:8px;padding:10px;text-align:center}
+.kpi .v{font-size:19px;font-weight:700}
+.kpi .l{font-size:12px;color:var(--mut)}
+footer{padding:14px 16px;color:var(--mut);font-size:12.5px;max-width:1020px;margin:0 auto}
+#printSheet{display:none}
+@media (max-width:560px){.pricebox{min-width:120px}header h1{font-size:17px}}
+@media print{body{background:#fff}header,nav,main,footer{display:none!important}#printSheet{display:block;padding:10px;font-size:13px}#printSheet h1{font-size:19px;margin:0 0 2px}#printSheet table{font-size:13px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>🖨️ PrintBook</h1>
+  <span class="shop" id="hdrShop"></span>
+</header>
+<nav id="tabs">
+  <button data-tab="quote" class="on">Quote Builder</button>
+  <button data-tab="jobs">Job Book</button>
+  <button data-tab="dash">Dashboard</button>
+  <button data-tab="settings">Settings</button>
+  <button data-tab="help">Help</button>
+</nav>
+<main>
+  <!-- QUOTE BUILDER -->
+  <section id="tab-quote">
+    <div class="card">
+      <h2>New quote</h2>
+      <div class="row">
+        <div><label>Customer</label><input id="qCustomer" placeholder="e.g. Lincoln High School"></div>
+        <div><label>Job / design name</label><input id="qJobName" placeholder="e.g. Senior class tees 2026"></div>
+      </div>
+      <div class="row">
+        <div><label>Garment / blank</label><input id="qGarment" placeholder="e.g. Gildan 5000 tee, black"></div>
+        <div><label>Quote date</label><input id="qDate" type="date"></div>
+        <div><label>Due date</label><input id="qDue" type="date"></div>
+      </div>
+      <div class="row">
+        <div><label>Quantity (pieces)</label><input inputmode="decimal" id="qQty" type="number" min="1" step="1" value="48"></div>
+        <div><label>Your blank cost per piece ($)</label><input inputmode="decimal" id="qBlank" type="number" min="0" step="0.01" value="4.50"></div>
+        <div><label>Deposit taken ($)</label><input inputmode="decimal" id="qDeposit" type="number" min="0" step="0.01" value="0"></div>
+        <div><label>Your total price ($, optional — blank = recommended)</label><input inputmode="decimal" id="qCustomPrice" type="number" min="0" step="0.01" placeholder="Optional"></div>
+      </div>
+      <h3>Print / embroidery locations</h3>
+      <div id="locList"></div>
+      <button class="btn sec small" id="addLocBtn" type="button">+ Add location</button>
+      <div id="quoteOut"></div>
+      <div class="warnbox" id="floorWarn" style="display:none"></div>
+      <div class="row" id="overrideRow" style="display:none;margin-top:6px">
+        <div style="flex:0 0 auto"><label><input type="checkbox" id="qOverride" style="width:auto"> Save anyway — I knowingly priced this below my profit floor</label></div>
+      </div>
+      <div class="actions" style="margin-top:12px">
+        <button class="btn" id="saveQuoteBtn" type="button">Save quote to Job Book</button>
+        <button class="btn sec" id="printQuoteBtn" type="button">Print quote sheet</button>
+      </div>
+      <div class="okbox" id="saveMsg" style="display:none"></div>
+    </div>
+  </section>
+
+  <!-- JOB BOOK -->
+  <section id="tab-jobs" style="display:none">
+    <div class="card">
+      <h2>Job book</h2>
+      <div class="row">
+        <div><label>Show</label><select id="jobFilter"><option value="all">All jobs</option><option value="quoted">Quoted</option><option value="booked">Booked / in production</option><option value="completed">Completed</option></select></div>
+        <div><label>Search</label><input id="jobSearch" placeholder="customer or job name"></div>
+      </div>
+      <div id="jobList" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="tab-dash" style="display:none"><div id="dashOut"></div></section>
+
+  <!-- SETTINGS -->
+  <section id="tab-settings" style="display:none">
+    <div class="card">
+      <h2>Shop &amp; rate settings</h2>
+      <div class="row">
+        <div><label>Shop name (prints on quotes)</label><input id="sShopName"></div>
+        <div><label>Phone</label><input id="sPhone"></div>
+        <div><label>Email</label><input id="sEmail"></div>
+      </div>
+      <div class="row">
+        <div><label>Labor rate ($/hr)</label><input inputmode="decimal" id="sLaborRate" type="number" step="0.01" min="0"></div>
+        <div><label>Overhead (% of direct cost)</label><input inputmode="decimal" id="sOverhead" type="number" step="0.1" min="0"></div>
+        <div><label>Target margin (%)</label><input inputmode="decimal" id="sMargin" type="number" step="0.5" min="0" max="95"></div>
+        <div><label>Profit floor margin (%)</label><input inputmode="decimal" id="sFloor" type="number" step="0.5" min="0" max="95"></div>
+      </div>
+      <div class="row">
+        <div><label>Blank markup (%)</label><input inputmode="decimal" id="sBlankMarkup" type="number" step="0.5" min="0"></div>
+        <div><label>Premium uplift (%)</label><input inputmode="decimal" id="sPremium" type="number" step="0.5" min="0"></div>
+        <div><label>Screen / setup fee per screen ($)</label><input inputmode="decimal" id="sScreenFee" type="number" step="0.01" min="0"></div>
+        <div><label>Embroidery digitizing fee per design ($)</label><input inputmode="decimal" id="sDigitFee" type="number" step="0.01" min="0"></div>
+      </div>
+      <div class="row">
+        <div><label>Ink / consumables per print ($)</label><input inputmode="decimal" id="sInk" type="number" step="0.01" min="0"></div>
+        <div><label>Setup minutes per screen</label><input inputmode="decimal" id="sSetupMin" type="number" step="1" min="0"></div>
+        <div><label>Run minutes per piece, per location</label><input inputmode="decimal" id="sRunMin" type="number" step="0.05" min="0"></div>
+      </div>
+      <div class="row">
+        <div><label>Embroidery rate per 1,000 stitches ($)</label><input inputmode="decimal" id="sEmbRate" type="number" step="0.01" min="0"></div>
+        <div><label>Embroidery minimum per piece ($)</label><input inputmode="decimal" id="sEmbMin" type="number" step="0.01" min="0"></div>
+        <div><label>Embroidery run minutes per 1,000 stitches, per piece</label><input inputmode="decimal" id="sEmbRunMin" type="number" step="0.1" min="0"></div>
+      </div>
+      <h3>Screen-print price table (per piece, per location)</h3>
+      <p class="small mut">Base = price for 1 color at that quantity break. Add'l color = extra per piece for each additional color. The break that applies is the largest break at or below the job quantity (below the first break, the first row applies).</p>
+      <div id="tierEditor"></div>
+      <div class="actions"><button class="btn small sec" id="addTierBtn" type="button">+ Add quantity break</button></div>
+      <div class="actions" style="margin-top:14px">
+        <button class="btn" id="saveSettingsBtn" type="button">Save settings</button>
+        <span class="small mut" id="setMsg"></span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Backup &amp; data</h2>
+      <div class="actions">
+        <button class="btn sec" id="exportBtn" type="button">Export backup (JSON)</button>
+        <button class="btn sec" id="importBtn" type="button">Import backup</button>
+        <input type="file" id="importFile" accept=".json,application/json" style="display:none">
+        <button class="btn sec" id="clearDemoBtn" type="button">Clear sample jobs</button>
+        <button class="btn danger" id="eraseBtn" type="button">Erase everything</button>
+      </div>
+      <p class="small mut" id="dataMsg"></p>
+    </div>
+  </section>
+
+  <!-- HELP -->
+  <section id="tab-help" style="display:none">
+    <div class="card">
+      <h2>How PrintBook pricing works</h2>
+      <p><b>Rate card.</b> Your customer price starts from your own numbers: blanks marked up by your blank markup %, screen-print charges from your price table (by quantity break and colors per location), a setup/screen fee for every screen (one per color, per location), embroidery priced per 1,000 stitches with a per-piece minimum, plus a one-time digitizing fee per embroidered design.</p>
+      <p><b>True cost.</b> Separately, PrintBook computes what the job actually costs you: blank cost, ink/consumables per print, labor (setup minutes per screen + run time) at your labor rate, plus your overhead %.</p>
+      <p><b>Three prices.</b> Break-even = true cost. The margin price = true cost ÷ (1 − target margin). <b>Recommended is the higher of your rate card and the margin price</b> — so a heavy setup on a small run can't sneak in underpriced. Premium = recommended + your premium uplift, for rush work.</p>
+      <p><b>Profit floor.</b> If the recommended price falls below the price that delivers your floor margin, PrintBook warns you and won't save the quote unless you deliberately tick the override.</p>
+      <p><b>Job book.</b> Save a quote, mark it booked when the customer approves, record deposit and payments, then complete it with the actual blank spend and hours — PrintBook shows the true profit on the job.</p>
+      <h3>Honest limits</h3>
+      <p>PrintBook is your shop's quoting and job book. It does not take online orders or payments, has no customer portal, and doesn't sync between devices — it's one file, on your device, with your data in your browser. Export a backup from Settings before switching devices, and before clearing browser data. Prices are estimates from your rate card — your scale tickets, supplier invoices, and press are the final truth.</p>
+    </div>
+  </section>
+</main>
+<footer>PrintBook — one file, works offline, no account, no subscription. Your data never leaves this device.</footer>
+<div id="printSheet"></div>
+<script>
+"use strict";
+var LS_KEY = "printbook_v1";
+function r2(n){ return Math.round((Number(n)||0)*100)/100; }
+function money(n){ var v = r2(n); return "$" + v.toLocaleString("en-US",{minimumFractionDigits:2, maximumFractionDigits:2}); }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function num(v, d){ var n = parseFloat(v); return isFinite(n) ? n : (d||0); }
+function clamp(n, lo, hi){ n = Number(n)||0; return n<lo?lo:(n>hi?hi:n); }
+function todayStr(){ var d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function validDate(s){ if(!/^\d{4}-\d{2}-\d{2}$/.test(s||"")) return false; var p=s.split("-"), y=+p[0], m=+p[1], d=+p[2]; if(m<1||m>12||d<1||d>31) return false; var dt=new Date(Date.UTC(y,m-1,d)); return dt.getUTCFullYear()===y && dt.getUTCMonth()===m-1 && dt.getUTCDate()===d; }
+
+function defaultSettings(){
+  return {
+    shopName:"", phone:"", email:"",
+    laborRate:22, overheadPct:10, targetMargin:40, floorMargin:25,
+    blankMarkupPct:35, premiumPct:15,
+    screenFee:25, digitizingFee:35,
+    inkPerPrint:0.12, setupMinPerScreen:20, runMinPerPieceLoc:0.75,
+    embRatePer1k:1.00, embMinPerPiece:4.50, embRunMinPer1k:1.2,
+    tiers:[
+      {minQty:12,  base:3.25, addColor:1.10},
+      {minQty:24,  base:2.75, addColor:0.95},
+      {minQty:48,  base:2.35, addColor:0.80},
+      {minQty:72,  base:2.00, addColor:0.70},
+      {minQty:144, base:1.65, addColor:0.55},
+      {minQty:288, base:1.35, addColor:0.45}
+    ]
+  };
+}
+function shopIsPlaceholder(name){ var n = String(name==null?"":name).trim(); return !n || n === "My Print Shop"; }
+function quoteOf(j){ return (j && j.snapshot && typeof j.snapshot==="object") ? j.snapshot : (j ? j.quote : null); }
+function tierFor(tiers, qty){
+  var sorted = tiers.slice().sort(function(a,b){ return a.minQty-b.minQty; });
+  var t = sorted[0];
+  for(var i=0;i<sorted.length;i++){ if(qty >= sorted[i].minQty) t = sorted[i]; }
+  return t;
+}
+/* Compute a full quote. inp: {qty, blankCostPer, locations:[{type:'screen'|'emb', colors, stitches}]} */
+function computeQuote(inp, S){
+  var qty = Math.max(0, Math.floor(num(inp.qty,0)));
+  var blank = Math.max(0, num(inp.blankCostPer,0));
+  var locs = Array.isArray(inp.locations) ? inp.locations : [];
+  var tier = tierFor(S.tiers, Math.max(qty,1));
+  var screens = 0, screenLocs = 0, embLocs = 0, hasEmb = false;
+  var printPerPiece = 0, embPerPiece = 0;
+  var locDetail = [];
+  locs.forEach(function(L){
+    if(L.type === "emb"){
+      hasEmb = true; embLocs++;
+      var st = Math.max(0, num(L.stitches,0));
+      var p = Math.max(num(S.embMinPerPiece,0), st/1000 * num(S.embRatePer1k,0));
+      embPerPiece += p;
+      locDetail.push({type:"emb", name:L.name||"Embroidery", stitches:st, perPiece:r2(p)});
+    } else {
+      screenLocs++;
+      var c = Math.max(1, Math.floor(num(L.colors,1)));
+      screens += c;
+      var pp = num(tier.base,0) + (c-1) * num(tier.addColor,0);
+      printPerPiece += pp;
+      locDetail.push({type:"screen", name:L.name||"Print location", colors:c, perPiece:r2(pp)});
+    }
+  });
+  var printTotal = r2(qty * printPerPiece);
+  var embTotal = r2(qty * embPerPiece);
+  var setupTotal = r2(screens * num(S.screenFee,0) + (hasEmb ? num(S.digitizingFee,0) : 0));
+  var blanksSell = r2(qty * blank * (1 + num(S.blankMarkupPct,0)/100));
+  var rateCard = r2(blanksSell + printTotal + embTotal + setupTotal);
+  /* true cost */
+  var blankCost = r2(qty * blank);
+  var inkCost = r2(num(S.inkPerPrint,0) * qty * screenLocs);
+  var laborMin = screens * num(S.setupMinPerScreen,0) + qty * screenLocs * num(S.runMinPerPieceLoc,0);
+  locs.forEach(function(L){ if(L.type==="emb") laborMin += qty * (Math.max(0,num(L.stitches,0))/1000) * num(S.embRunMinPer1k,0); });
+  var laborCost = r2(laborMin/60 * num(S.laborRate,0));
+  var directCost = r2(blankCost + inkCost + laborCost);
+  var overhead = r2(directCost * num(S.overheadPct,0)/100);
+  var trueCost = r2(directCost + overhead);
+  var margin = clamp(num(S.targetMargin,0),0,95)/100;
+  var floorM = clamp(num(S.floorMargin,0),0,95)/100;
+  var marginPrice = margin < 1 ? r2(trueCost/(1-margin)) : trueCost;
+  var floorPrice = floorM < 1 ? r2(trueCost/(1-floorM)) : trueCost;
+  var recommended = Math.max(rateCard, marginPrice);
+  var premium = r2(recommended * (1 + num(S.premiumPct,0)/100));
+  return {
+    qty:qty, tierMinQty:tier.minQty, locDetail:locDetail, screens:screens,
+    printPerPiece:r2(printPerPiece), embPerPiece:r2(embPerPiece),
+    printTotal:printTotal, embTotal:embTotal, setupTotal:setupTotal, blanksSell:blanksSell,
+    rateCard:rateCard, blankCost:blankCost, inkCost:inkCost, laborMin:r2(laborMin), laborCost:laborCost,
+    overhead:overhead, trueCost:trueCost, marginPrice:marginPrice, floorPrice:floorPrice,
+    recommended:recommended, premium:premium,
+    perPiece: qty>0 ? r2(recommended/qty) : 0,
+    belowFloor: recommended < floorPrice - 0.005
+  };
+}
+
+var state = null;
+function blankState(){ return { settings: defaultSettings(), jobs: [], seq: 1, seeded:false }; }
+function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){} }
+function load(){
+  try{
+    var raw = localStorage.getItem(LS_KEY);
+    if(raw){ var p = JSON.parse(raw); if(p && p.settings && Array.isArray(p.jobs)){ state = p; return; } }
+  }catch(e){}
+  state = blankState();
+}
+function uid(){ return "j" + (state.seq++) + "_" + Date.now().toString(36); }
+
+function seedDemo(){
+  var S = state.settings;
+  var jobs = [
+    {customer:"Lincoln High School", jobName:"Senior class tees 2026", garment:"Gildan 5000 tee, black", date:"2026-10-20", due:"2026-11-06", qty:144, blankCostPer:4.25,
+     locations:[{type:"screen", name:"Front", colors:2},{type:"screen", name:"Back", colors:1}], deposit:300, collected:0, status:"booked", actualBlankSpend:null, actualHours:null},
+    {customer:"Grace Community Church", jobName:"Fall festival tees", garment:"Bella+Canvas 3001, heather navy", date:"2026-10-12", due:"2026-10-24", qty:72, blankCostPer:5.10,
+     locations:[{type:"screen", name:"Front", colors:3}], deposit:200, collected:412.55, status:"completed", actualBlankSpend:371.40, actualHours:3.5},
+    {customer:"Ridgeview Realty", jobName:"Logo polos — embroidered", garment:"Port Authority K500 polo, navy", date:"2026-10-18", due:"2026-10-30", qty:24, blankCostPer:9.00,
+     locations:[{type:"emb", name:"Left chest", stitches:7500}], deposit:270.60, collected:0, status:"booked", actualBlankSpend:null, actualHours:null},
+    {customer:"Westside Little League", jobName:"Team hoodies", garment:"Gildan 18500 hoodie, sport grey", date:"2026-10-25", due:"2026-11-12", qty:48, blankCostPer:11.75,
+     locations:[{type:"screen", name:"Front", colors:1},{type:"emb", name:"Sleeve name", stitches:3200}], deposit:0, collected:0, status:"quoted", actualBlankSpend:null, actualHours:null},
+    {customer:"The Daily Grind Coffee", jobName:"Staff aprons + tees", garment:"Apron & tee mix, assorted", date:"2026-10-08", due:"2026-10-21", qty:36, blankCostPer:6.40,
+     locations:[{type:"screen", name:"Front", colors:2}], deposit:150, collected:266.10, status:"completed", actualBlankSpend:228.00, actualHours:2.25}
+  ];
+  jobs.forEach(function(j){
+    j.id = uid(); j.demo = true; j.overrideFloor = false; j.notes = "";
+    j.quote = computeQuote(j, S);
+    j.snapshot = JSON.parse(JSON.stringify(j.quote)); j.payments = [];
+  });
+  state.jobs = jobs; state.seeded = true; save();
+}
+
+/* ---------- Quote builder UI ---------- */
+var locSeq = 0;
+function addLocRow(type, name, colors, stitches){
+  locSeq++;
+  var div = document.createElement("div");
+  div.className = "locrow"; div.id = "loc" + locSeq;
+  div.innerHTML =
+    '<div><label>Type</label><select class="locType"><option value="screen">Screen print</option><option value="emb">Embroidery</option></select></div>' +
+    '<div><label>Location name</label><input class="locName" placeholder="Front / Back / Left chest"></div>' +
+    '<div class="locColorsWrap"><label>Colors</label><input inputmode="decimal" class="locColors" type="number" min="1" max="12" step="1" value="1"></div>' +
+    '<div class="locStitchWrap" style="display:none"><label>Stitches</label><input inputmode="decimal" class="locStitches" type="number" min="0" step="100" value="7500"></div>' +
+    '<div style="flex:0 0 auto"><button type="button" class="btn danger small locDel">Remove</button></div>';
+  document.getElementById("locList").appendChild(div);
+  var sel = div.querySelector(".locType");
+  sel.value = type || "screen";
+  div.querySelector(".locName").value = name || "";
+  div.querySelector(".locColors").value = colors || 1;
+  div.querySelector(".locStitches").value = stitches || 7500;
+  function syncType(){
+    var isEmb = sel.value === "emb";
+    div.querySelector(".locColorsWrap").style.display = isEmb ? "none" : "";
+    div.querySelector(".locStitchWrap").style.display = isEmb ? "" : "none";
+    renderQuote();
+  }
+  sel.addEventListener("change", syncType);
+  div.querySelector(".locDel").addEventListener("click", function(){ div.remove(); renderQuote(); });
+  div.querySelectorAll("input").forEach(function(el){ el.addEventListener("input", renderQuote); });
+  syncType();
+}
+function readLocations(){
+  var out = [];
+  document.querySelectorAll("#locList .locrow").forEach(function(div){
+    var t = div.querySelector(".locType").value;
+    out.push({ type:t, name: div.querySelector(".locName").value.trim(),
+      colors: Math.max(1, Math.floor(num(div.querySelector(".locColors").value,1))),
+      stitches: Math.max(0, num(div.querySelector(".locStitches").value,0)) });
+  });
+  return out;
+}
+function readQuoteInputs(){
+  return {
+    customer: document.getElementById("qCustomer").value.trim(),
+    jobName: document.getElementById("qJobName").value.trim(),
+    garment: document.getElementById("qGarment").value.trim(),
+    date: document.getElementById("qDate").value || todayStr(),
+    due: document.getElementById("qDue").value || "",
+    qty: Math.max(0, Math.floor(num(document.getElementById("qQty").value,0))),
+    blankCostPer: Math.max(0, num(document.getElementById("qBlank").value,0)),
+    deposit: Math.max(0, num(document.getElementById("qDeposit").value,0)),
+    locations: readLocations()
+  };
+}
+function currentQuote(){
+  var inp = readQuoteInputs();
+  var q = computeQuote(inp, state.settings);
+  var cpEl = document.getElementById("qCustomPrice");
+  var cp = cpEl ? Math.max(0, num(cpEl.value, 0)) : 0;
+  if(cp > 0){
+    q.computedRecommended = q.recommended;
+    q.customPrice = r2(cp);
+    q.recommended = r2(cp);
+    q.perPiece = q.qty > 0 ? r2(cp / q.qty) : 0;
+    q.premium = r2(cp * (1 + num(state.settings.premiumPct, 0) / 100));
+    q.belowFloor = q.recommended < q.floorPrice - 0.005;
+  }
+  return { inp:inp, q:q };
+}
+function renderQuote(){
+  var c = currentQuote(), q = c.q, S = state.settings;
+  var rows = q.locDetail.map(function(L){
+    if(L.type === "emb") return "<tr><td>" + esc(L.name) + " — embroidery, " + L.stitches.toLocaleString() + " stitches</td><td class='num money'>" + money(L.perPiece) + "</td></tr>";
+    return "<tr><td>" + esc(L.name) + " — screen print, " + L.colors + " color" + (L.colors>1?"s":"") + "</td><td class='num money'>" + money(L.perPiece) + "</td></tr>";
+  }).join("");
+  var html = "<h3 style='margin-top:14px'>Price check — quantity break at " + q.tierMinQty + "+ pieces</h3>" +
+    "<table><tr><th>Charge</th><th class='num'>Per piece</th><th class='num'>Total</th></tr>" +
+    rows +
+    "<tr><td>Blanks (marked up " + S.blankMarkupPct + "%)</td><td class='num money'>" + (q.qty>0?money(q.blanksSell/q.qty):"$0.00") + "</td><td class='num money'>" + money(q.blanksSell) + "</td></tr>" +
+    "<tr><td>Setup / screens (" + q.screens + " screen" + (q.screens===1?"":"s") + (q.embTotal>0?" + digitizing":"") + ")</td><td class='num'>—</td><td class='num money'>" + money(q.setupTotal) + "</td></tr>" +
+    "<tr><td><b>Rate-card total</b></td><td class='num'></td><td class='num money'><b>" + money(q.rateCard) + "</b></td></tr>" +
+    "<tr><td class='mut'>Your true cost (blanks " + money(q.blankCost) + " + ink " + money(q.inkCost) + " + labor " + money(q.laborCost) + " + overhead " + money(q.overhead) + ")</td><td class='num'></td><td class='num money mut'>" + money(q.trueCost) + "</td></tr></table>" +
+    "<div class='pricegrid'>" +
+    "<div class='pricebox'><div class='lbl'>Break-even</div><div class='amt money'>" + money(q.trueCost) + "</div><div class='pp'>" + (q.qty>0?money(q.trueCost/q.qty):"$0.00") + " / piece</div></div>" +
+    "<div class='pricebox rec'><div class='lbl'>Recommended</div><div class='amt money'>" + money(q.recommended) + "</div><div class='pp'>" + money(q.perPiece) + " / piece</div></div>" +
+    "<div class='pricebox'><div class='lbl'>Premium (rush)</div><div class='amt money'>" + money(q.premium) + "</div><div class='pp'>" + (q.qty>0?money(q.premium/q.qty):"$0.00") + " / piece</div></div></div>";
+  if(q.customPrice) html += "<p class='small mut'>Using <b>your price</b> of " + money(q.customPrice) + " — the computed recommended price was " + money(q.computedRecommended) + ".</p>";
+  else if(q.recommended > q.rateCard + 0.005) html += "<p class='small mut'>Recommended is above the rate card here — setup and labor on this run need more than the rate card returns, so the price follows your target margin instead.</p>";
+  document.getElementById("quoteOut").innerHTML = html;
+  var warn = document.getElementById("floorWarn"), orow = document.getElementById("overrideRow");
+  if(q.belowFloor){
+    warn.style.display = ""; orow.style.display = "";
+    warn.innerHTML = "⚠️ <b>Below your profit floor.</b> This price returns less than your " + S.floorMargin + "% floor margin — the floor price for this job is <b>" + money(q.floorPrice) + "</b>. Raise the price, or tick the override to save it anyway.";
+  } else { warn.style.display = "none"; orow.style.display = "none"; }
+  document.getElementById("saveQuoteBtn").disabled = q.qty <= 0;
+}
+</script>
+<script>
+"use strict";
+function paidOf(j){ return r2(num(j.deposit,0) + num(j.collected,0)); }
+function balanceOf(j){ var q = quoteOf(j) || {}; return r2(num(q.recommended,0) - paidOf(j)); }
+function profitBasis(j){ var q = quoteOf(j) || {}; return r2(num(q.recommended,0) - (num(j.actualBlankSpend,0) + num(j.actualHours,0)*num(state.settings.laborRate,0) + num(q.inkCost,0))); }
+var editingJobId = null;
+function showSaveMsg(text, isErr){
+  var m = document.getElementById("saveMsg");
+  m.style.display = ""; m.className = isErr ? "badbox" : "okbox"; m.textContent = text;
+}
+
+function saveQuote(){
+  var c = currentQuote(), inp = c.inp, q = c.q;
+  var override = document.getElementById("qOverride").checked;
+  if(q.belowFloor && !override){ showSaveMsg("Not saved \u2014 this price is below your profit floor (" + money(q.floorPrice) + "). Raise the price, or tick \u201cSave anyway \u2014 I knowingly priced this below my profit floor\u201d and save again.", true); return; }
+  if(q.qty <= 0){ showSaveMsg("Not saved \u2014 enter a quantity above 0 first.", true); return; }
+  if(editingJobId){
+    var ex = findJob(editingJobId);
+    if(ex){
+      ex.customer = inp.customer || "Walk-in customer"; ex.jobName = inp.jobName || "Untitled job";
+      ex.garment = inp.garment; ex.date = inp.date; ex.due = inp.due; ex.qty = inp.qty; ex.blankCostPer = inp.blankCostPer;
+      ex.locations = inp.locations; ex.deposit = inp.deposit; ex.overrideFloor = !!override;
+      ex.quote = q; ex.snapshot = JSON.parse(JSON.stringify(q));
+      save(); editingJobId = null;
+      showSaveMsg("Updated in the Job Book: " + ex.customer + " \u2014 " + ex.jobName + " at " + money(q.recommended) + " (" + money(q.perPiece) + "/piece).", false);
+      renderJobs(); renderDash(); return;
+    }
+    editingJobId = null;
+  }
+  var job = {
+    id: uid(), customer: inp.customer || "Walk-in customer", jobName: inp.jobName || "Untitled job",
+    garment: inp.garment, date: inp.date, due: inp.due, qty: inp.qty, blankCostPer: inp.blankCostPer,
+    locations: inp.locations, deposit: inp.deposit, collected: 0, status: "quoted",
+    actualBlankSpend: null, actualHours: null, overrideFloor: !!override, quote: q, snapshot: JSON.parse(JSON.stringify(q)), payments: [], demo:false, notes:""
+  };
+  state.jobs.unshift(job); save();
+  showSaveMsg("Saved to the Job Book: " + job.customer + " \u2014 " + job.jobName + " at " + money(q.recommended) + " (" + money(q.perPiece) + "/piece).", false);
+  renderJobs(); renderDash();
+}
+function loadJobIntoBuilder(j){
+  editingJobId = j.id;
+  document.getElementById("qCustomer").value = j.customer || "";
+  document.getElementById("qJobName").value = j.jobName || "";
+  document.getElementById("qGarment").value = j.garment || "";
+  document.getElementById("qDate").value = j.date || todayStr();
+  document.getElementById("qDue").value = j.due || "";
+  document.getElementById("qQty").value = j.qty || "";
+  document.getElementById("qBlank").value = j.blankCostPer != null ? j.blankCostPer : "";
+  document.getElementById("qDeposit").value = j.deposit || 0;
+  var snap = quoteOf(j) || {};
+  document.getElementById("qCustomPrice").value = snap.customPrice ? snap.customPrice : "";
+  document.getElementById("qOverride").checked = !!j.overrideFloor;
+  document.getElementById("locList").innerHTML = "";
+  var locs = (j.locations && j.locations.length) ? j.locations : [{type:"screen", name:"Front", colors:1, stitches:7500}];
+  locs.forEach(function(L){ addLocRow(L.type, L.name, L.colors, L.stitches); });
+  showTab("quote"); renderQuote();
+  showSaveMsg("Editing job: " + j.customer + " \u2014 " + j.jobName + ". Saving updates this job in place (status and payments are kept).", false);
+}
+function duplicateJob(j){
+  var copy = JSON.parse(JSON.stringify(j));
+  copy.id = uid(); copy.jobName = (copy.jobName || "Untitled job") + " (copy)";
+  copy.status = "quoted"; copy.collected = 0; copy.deposit = 0; copy.payments = [];
+  copy.actualBlankSpend = null; copy.actualHours = null; copy.demo = false;
+  if(!copy.snapshot && copy.quote) copy.snapshot = JSON.parse(JSON.stringify(copy.quote));
+  state.jobs.unshift(copy); save(); renderJobs(); renderDash();
+}
+function quoteSheetHTML(job){
+  var S = state.settings, q = quoteOf(job) || job.quote;
+  var rows = q.locDetail.map(function(L){
+    if(L.type === "emb") return "<tr><td>" + esc(L.name) + " — embroidery (" + L.stitches.toLocaleString() + " stitches)</td><td class='num'>" + money(L.perPiece) + "</td></tr>";
+    return "<tr><td>" + esc(L.name) + " — screen print (" + L.colors + " color" + (L.colors>1?"s":"") + ")</td><td class='num'>" + money(L.perPiece) + "</td></tr>";
+  }).join("");
+  var warn = shopIsPlaceholder(S.shopName) ? "<div style='border:2px solid #b3261e;color:#b3261e;padding:8px;font-weight:700;margin-bottom:10px'>\u26a0 DEMO \u2014 set your business name in Settings before sending this to a customer.</div>" : "";
+  return warn + "<h1>" + esc(S.shopName) + "</h1><div>" + esc(S.phone) + (S.phone && S.email ? " · " : "") + esc(S.email) + "</div>" +
+    "<h2 style='margin:12px 0 4px'>Quote — " + esc(job.jobName) + "</h2>" +
+    "<div>Customer: <b>" + esc(job.customer) + "</b> · Date: " + esc(job.date) + (job.due ? " · Due: " + esc(job.due) : "") + "</div>" +
+    "<div>Garment: " + esc(job.garment) + " · Quantity: " + job.qty + " pieces</div>" +
+    "<table style='margin-top:10px'><tr><th>Item</th><th class='num'>Per piece</th></tr>" + rows +
+    "<tr><td>Blanks</td><td class='num'>" + (job.qty>0?money(q.blanksSell/job.qty):"$0.00") + "</td></tr>" +
+    "<tr><td>Setup / screen fees</td><td class='num'>" + money(q.setupTotal) + " total</td></tr>" +
+    "<tr><td><b>Total</b></td><td class='num'><b>" + money(q.recommended) + "</b> (" + money(q.perPiece) + "/piece)</td></tr>" +
+    "<tr><td>Deposit taken</td><td class='num'>" + money(job.deposit) + "</td></tr>" +
+    "<tr><td>Balance due</td><td class='num'>" + money(balanceOf(job)) + "</td></tr></table>" +
+    "<p style='margin-top:12px'>Quote built from our standard rate card. Final invoice may vary if quantities or artwork change. Thank you for your business!</p>";
+}
+function printJob(job){ document.getElementById("printSheet").innerHTML = quoteSheetHTML(job); window.print(); }
+
+/* ---------- Job book ---------- */
+function renderJobs(){
+  var f = document.getElementById("jobFilter").value;
+  var term = document.getElementById("jobSearch").value.trim().toLowerCase();
+  var list = state.jobs.filter(function(j){
+    if(f !== "all" && j.status !== f) return false;
+    if(term && (j.customer + " " + j.jobName).toLowerCase().indexOf(term) < 0) return false;
+    return true;
+  });
+  var el = document.getElementById("jobList");
+  if(!list.length){ el.innerHTML = "<p class='mut'>No jobs match. Save a quote to start the book.</p>"; return; }
+  el.innerHTML = list.map(function(j){
+    var q = quoteOf(j) || j.quote, bal = balanceOf(j);
+    var locTxt = q.locDetail.map(function(L){ return L.type === "emb" ? esc(L.name) + " (emb)" : esc(L.name) + " (" + L.colors + "c)"; }).join(", ");
+    var profit = j.status === "completed" ? profitBasis(j) : null;
+    var acts = "";
+    if(j.status === "quoted") acts += "<button class='btn small' data-act='book' data-id='" + j.id + "'>Mark booked</button>";
+    if(j.status === "booked") acts += "<button class='btn small' data-act='complete' data-id='" + j.id + "'>Complete job\u2026</button>";
+    acts += "<button class='btn small sec' data-act='pay' data-id='" + j.id + "'>Record payment</button>";
+    acts += "<button class='btn small sec' data-act='edit' data-id='" + j.id + "'>Edit</button>";
+    acts += "<button class='btn small sec' data-act='dup' data-id='" + j.id + "'>Duplicate</button>";
+    acts += "<button class='btn small sec' data-act='print' data-id='" + j.id + "'>Print quote</button>";
+    acts += "<button class='btn small danger' data-act='del' data-id='" + j.id + "'>Delete</button>";
+    var payHist = "";
+    if(j.payments && j.payments.length){
+      payHist = "<div class='small mut'>" + j.payments.map(function(pmt){ return "Payment " + money(pmt.amount) + (pmt.date ? " on " + esc(pmt.date) : "") + (pmt.notes ? " \u2014 " + esc(pmt.notes) : ""); }).join("<br>") + "</div>";
+    }
+    var forms = "<div class='payform' id='payform-" + j.id + "' style='display:none;margin-top:8px;border-top:1px dashed var(--line);padding-top:8px'>"
+      + "<div class='row'><div><label>Payment amount ($)</label><input inputmode='decimal' class='payAmt' type='number' min='0' step='0.01'></div>"
+      + "<div><label>Date</label><input class='payDate' type='date' value='" + todayStr() + "'></div>"
+      + "<div><label>Notes</label><input class='payNote' placeholder='e.g. card, check #123'></div></div>"
+      + "<div class='actions'><button class='btn small' data-act='paySave' data-id='" + j.id + "'>Save payment</button><button class='btn small sec' data-act='payCancel' data-id='" + j.id + "'>Cancel</button></div>"
+      + "<div class='small payErr' style='color:var(--bad)'></div></div>"
+      + "<div class='compform' id='compform-" + j.id + "' style='display:none;margin-top:8px;border-top:1px dashed var(--line);padding-top:8px'>"
+      + "<div class='row'><div><label>Actual blank / garment spend ($)</label><input inputmode='decimal' class='compBlank' type='number' min='0' step='0.01' value='" + num(q.blankCost,0) + "'></div>"
+      + "<div><label>Actual production hours</label><input inputmode='decimal' class='compHours' type='number' min='0' step='0.05' value='" + (num(q.laborMin,0)/60).toFixed(2) + "'></div>"
+      + "<div><label>Notes</label><input class='compNote' placeholder='completion notes'></div></div>"
+      + "<div class='actions'><button class='btn small' data-act='compSave' data-id='" + j.id + "'>Save completion</button><button class='btn small sec' data-act='compCancel' data-id='" + j.id + "'>Cancel</button></div>"
+      + "<div class='small compErr' style='color:var(--bad)'></div></div>";
+    var actuals = "";
+    if(j.status === "completed"){
+      actuals = "<div class='small'>Actual blank spend " + money(j.actualBlankSpend||0) + " · actual hours " + (j.actualHours||0) +
+        " · <b>true profit " + money(profit) + "</b></div>";
+    }
+    return "<div class='jobcard'><div class='top'><span class='nm'>" + esc(j.customer) + " — " + esc(j.jobName) + "</span>" +
+      "<span class='pill " + j.status + "'>" + j.status.toUpperCase() + "</span></div>" +
+      "<div class='small mut'>" + esc(j.garment) + " · " + j.qty + " pcs · " + locTxt + (j.due ? " · due " + esc(j.due) : "") + "</div>" +
+      "<div class='small'>Quote <b>" + money(q.recommended) + "</b> (" + money(q.perPiece) + "/pc) · paid " + money(paidOf(j)) + " · <b>balance " + money(bal) + "</b></div>" +
+      actuals + payHist + "<div class='actions'>" + acts + "</div>" + forms + "</div>";
+  }).join("");
+  el.querySelectorAll("button[data-act]").forEach(function(b){
+    b.addEventListener("click", function(){ jobAction(b.getAttribute("data-act"), b.getAttribute("data-id")); });
+  });
+}
+function findJob(id){ for(var i=0;i<state.jobs.length;i++) if(state.jobs[i].id === id) return state.jobs[i]; return null; }
+function jobAction(act, id){
+  var j = findJob(id); if(!j) return;
+  if(act === "book"){ j.status = "booked"; }
+  else if(act === "del"){ if(confirm("Delete this job from the book?")){ state.jobs = state.jobs.filter(function(x){ return x.id !== id; }); } else return; }
+  else if(act === "print"){ printJob(j); return; }
+  else if(act === "edit"){ loadJobIntoBuilder(j); return; }
+  else if(act === "dup"){ duplicateJob(j); return; }
+  else if(act === "pay"){ var pf = document.getElementById("payform-" + id); if(pf) pf.style.display = pf.style.display === "none" ? "" : "none"; return; }
+  else if(act === "payCancel"){ var pf2 = document.getElementById("payform-" + id); if(pf2) pf2.style.display = "none"; return; }
+  else if(act === "paySave"){
+    var pf3 = document.getElementById("payform-" + id); if(!pf3) return;
+    var a = Math.max(0, num(pf3.querySelector(".payAmt").value, 0));
+    if(a <= 0){ pf3.querySelector(".payErr").textContent = "Enter a payment amount above 0."; return; }
+    j.collected = r2(num(j.collected,0) + a);
+    if(!Array.isArray(j.payments)) j.payments = [];
+    j.payments.push({ amount: r2(a), date: pf3.querySelector(".payDate").value || todayStr(), notes: pf3.querySelector(".payNote").value.trim() });
+  }
+  else if(act === "complete"){ var cf = document.getElementById("compform-" + id); if(cf) cf.style.display = cf.style.display === "none" ? "" : "none"; return; }
+  else if(act === "compCancel"){ var cf2 = document.getElementById("compform-" + id); if(cf2) cf2.style.display = "none"; return; }
+  else if(act === "compSave"){
+    var cf3 = document.getElementById("compform-" + id); if(!cf3) return;
+    j.actualBlankSpend = Math.max(0, num(cf3.querySelector(".compBlank").value, 0));
+    j.actualHours = Math.max(0, num(cf3.querySelector(".compHours").value, 0));
+    j.compNotes = cf3.querySelector(".compNote").value.trim();
+    j.status = "completed";
+  }
+  save(); renderJobs(); renderDash();
+}
+
+/* ---------- Dashboard ---------- */
+function renderDash(){
+  var jobs = state.jobs;
+  var quotedVal = 0, bookedVal = 0, collected = 0, outstanding = 0, profit = 0, profitCount = 0;
+  jobs.forEach(function(j){
+    var jq = quoteOf(j) || {};
+    if(j.status === "quoted") quotedVal = r2(quotedVal + num(jq.recommended,0));
+    if(j.status === "booked") bookedVal = r2(bookedVal + num(jq.recommended,0));
+    collected = r2(collected + paidOf(j));
+    if(j.status !== "quoted") outstanding = r2(outstanding + Math.max(0, balanceOf(j)));
+    if(j.status === "completed"){ profit = r2(profit + profitBasis(j)); profitCount++; }
+  });
+  var today = todayStr();
+  var overdue = jobs.filter(function(j){ return j.status === "booked" && j.due && j.due < today; })
+    .sort(function(a,b){ return a.due < b.due ? -1 : 1; });
+  var dueSoon = jobs.filter(function(j){ return j.status === "booked" && j.due && j.due >= today; })
+    .sort(function(a,b){ return a.due < b.due ? -1 : 1; }).slice(0,8);
+  var owing = jobs.filter(function(j){ return j.status !== "quoted" && balanceOf(j) > 0.005; })
+    .sort(function(a,b){ return balanceOf(b) - balanceOf(a); });
+  var html = "<div class='card'><h2>Dashboard</h2><div class='kpis'>" +
+    "<div class='kpi'><div class='v money'>" + money(quotedVal) + "</div><div class='l'>Quoted, not yet booked</div></div>" +
+    "<div class='kpi'><div class='v money'>" + money(bookedVal) + "</div><div class='l'>Booked / in production</div></div>" +
+    "<div class='kpi'><div class='v money'>" + money(collected) + "</div><div class='l'>Collected to date</div></div>" +
+    "<div class='kpi'><div class='v money'>" + money(outstanding) + "</div><div class='l'>Outstanding balances</div></div>" +
+    "<div class='kpi'><div class='v money'>" + money(profit) + "</div><div class='l'>True profit, " + profitCount + " completed job" + (profitCount===1?"":"s") + "</div></div></div></div>";
+  if(overdue.length){
+    html += "<div class='card' style='border-color:#e5a19c;background:var(--badbg)'><h2 style='color:var(--bad)'>\u26a0 Overdue booked jobs (" + overdue.length + ")</h2>"
+      + overdue.map(function(j){ return "<div class='small'><b>" + esc(j.due) + "</b> \u2014 " + esc(j.customer) + " \u00b7 " + esc(j.jobName) + " (" + j.qty + " pcs) \u00b7 balance <b>" + money(balanceOf(j)) + "</b></div>"; }).join("") + "</div>";
+  }
+  html += "<div class='card'><h2>Due next (booked)</h2>";
+  html += dueSoon.length ? dueSoon.map(function(j){ return "<div class='small'><b>" + esc(j.due) + "</b> — " + esc(j.customer) + " · " + esc(j.jobName) + " (" + j.qty + " pcs)</div>"; }).join("") : "<p class='mut small'>No booked jobs with upcoming due dates.</p>";
+  html += "</div><div class='card'><h2>Who still owes</h2>";
+  html += owing.length ? owing.map(function(j){ return "<div class='small'>" + esc(j.customer) + " — " + esc(j.jobName) + ": <b>" + money(balanceOf(j)) + "</b></div>"; }).join("") : "<p class='mut small'>Nobody owes anything on booked or completed work.</p>";
+  html += "</div>";
+  document.getElementById("dashOut").innerHTML = html;
+}
+
+/* ---------- Settings ---------- */
+function fillSettings(){
+  var S = state.settings;
+  document.getElementById("hdrShop").textContent = S.shopName || "";
+  var map = { sShopName:S.shopName, sPhone:S.phone, sEmail:S.email, sLaborRate:S.laborRate, sOverhead:S.overheadPct,
+    sMargin:S.targetMargin, sFloor:S.floorMargin, sBlankMarkup:S.blankMarkupPct, sPremium:S.premiumPct,
+    sScreenFee:S.screenFee, sDigitFee:S.digitizingFee, sInk:S.inkPerPrint, sSetupMin:S.setupMinPerScreen,
+    sRunMin:S.runMinPerPieceLoc, sEmbRate:S.embRatePer1k, sEmbMin:S.embMinPerPiece, sEmbRunMin:S.embRunMinPer1k };
+  Object.keys(map).forEach(function(id){ document.getElementById(id).value = map[id]; });
+  var te = document.getElementById("tierEditor");
+  te.innerHTML = S.tiers.map(function(t, i){
+    return "<div class='row tierRow'><div><label>Min qty</label><input inputmode='decimal' class='tMin' type='number' min='1' step='1' value='" + t.minQty + "'></div>" +
+      "<div><label>Base $ (1 color)</label><input inputmode='decimal' class='tBase' type='number' min='0' step='0.01' value='" + t.base + "'></div>" +
+      "<div><label>Add'l color $</label><input inputmode='decimal' class='tAdd' type='number' min='0' step='0.01' value='" + t.addColor + "'></div>" +
+      "<div style='flex:0 0 auto'><label>&nbsp;</label><button type='button' class='btn danger small tDel' data-i='" + i + "'>Remove</button></div></div>";
+  }).join("");
+  te.querySelectorAll(".tDel").forEach(function(b){ b.addEventListener("click", function(){
+    readSettings(false); state.settings.tiers.splice(+b.getAttribute("data-i"),1); if(!state.settings.tiers.length) state.settings.tiers = defaultSettings().tiers;
+    save(); fillSettings(); renderQuote();
+  }); });
+}
+function readSettings(showMsg){
+  var S = state.settings;
+  S.shopName = document.getElementById("sShopName").value.trim();
+  S.phone = document.getElementById("sPhone").value.trim(); S.email = document.getElementById("sEmail").value.trim();
+  S.laborRate = Math.max(0, num(document.getElementById("sLaborRate").value, 22));
+  S.overheadPct = Math.max(0, num(document.getElementById("sOverhead").value, 10));
+  S.targetMargin = clamp(num(document.getElementById("sMargin").value, 40), 0, 95);
+  S.floorMargin = clamp(num(document.getElementById("sFloor").value, 25), 0, 95);
+  S.blankMarkupPct = Math.max(0, num(document.getElementById("sBlankMarkup").value, 35));
+  S.premiumPct = Math.max(0, num(document.getElementById("sPremium").value, 15));
+  S.screenFee = Math.max(0, num(document.getElementById("sScreenFee").value, 25));
+  S.digitizingFee = Math.max(0, num(document.getElementById("sDigitFee").value, 35));
+  S.inkPerPrint = Math.max(0, num(document.getElementById("sInk").value, 0.12));
+  S.setupMinPerScreen = Math.max(0, num(document.getElementById("sSetupMin").value, 20));
+  S.runMinPerPieceLoc = Math.max(0, num(document.getElementById("sRunMin").value, 0.75));
+  S.embRatePer1k = Math.max(0, num(document.getElementById("sEmbRate").value, 1));
+  S.embMinPerPiece = Math.max(0, num(document.getElementById("sEmbMin").value, 4.5));
+  S.embRunMinPer1k = Math.max(0, num(document.getElementById("sEmbRunMin").value, 1.2));
+  var rows = document.querySelectorAll("#tierEditor .tierRow");
+  if(rows.length){
+    var tiers = [];
+    rows.forEach(function(r){
+      tiers.push({ minQty: Math.max(1, Math.floor(num(r.querySelector(".tMin").value, 12))),
+        base: Math.max(0, num(r.querySelector(".tBase").value, 0)),
+        addColor: Math.max(0, num(r.querySelector(".tAdd").value, 0)) });
+    });
+    tiers.sort(function(a,b){ return a.minQty - b.minQty; });
+    S.tiers = tiers;
+  }
+  if(showMsg) document.getElementById("setMsg").textContent = "Saved.";
+}
+/* ---------- Backup ---------- */
+function sanitizeJob(j){
+  if(!j || typeof j !== "object") return null;
+  var cust = String(j.customer || "").slice(0,120); if(!cust) return null;
+  var date = validDate(j.date) ? j.date : todayStr();
+  var due = validDate(j.due) ? j.due : "";
+  var locs = Array.isArray(j.locations) ? j.locations.slice(0,8).map(function(L){
+    L = L || {};
+    return { type: L.type === "emb" ? "emb" : "screen", name: String(L.name || "").slice(0,60),
+      colors: clamp(Math.floor(num(L.colors,1)), 1, 12), stitches: clamp(num(L.stitches,0), 0, 1000000) };
+  }) : [];
+  var job = { id: String(j.id || uid()), customer: cust, jobName: String(j.jobName || "Untitled job").slice(0,120),
+    garment: String(j.garment || "").slice(0,120), date: date, due: due,
+    qty: clamp(Math.floor(num(j.qty,0)), 0, 10000000), blankCostPer: clamp(num(j.blankCostPer,0), 0, 1000000),
+    locations: locs, deposit: clamp(num(j.deposit,0), 0, 100000000), collected: clamp(num(j.collected,0), 0, 100000000),
+    status: ["quoted","booked","completed"].indexOf(j.status) >= 0 ? j.status : "quoted",
+    actualBlankSpend: j.actualBlankSpend == null ? null : clamp(num(j.actualBlankSpend,0), 0, 100000000),
+    actualHours: j.actualHours == null ? null : clamp(num(j.actualHours,0), 0, 100000),
+    overrideFloor: !!j.overrideFloor, demo: !!j.demo, notes: String(j.notes || "").slice(0,500),
+    compNotes: String(j.compNotes || "").slice(0,500),
+    payments: Array.isArray(j.payments) ? j.payments.slice(0,200).map(function(pmt){ pmt = pmt || {}; return { amount: clamp(num(pmt.amount,0),0,100000000), date: validDate(pmt.date) ? pmt.date : "", notes: String(pmt.notes || "").slice(0,200) }; }) : [] };
+  job.snapshot = (j.snapshot && typeof j.snapshot === "object" && isFinite(num(j.snapshot.recommended, NaN))) ? JSON.parse(JSON.stringify(j.snapshot)) : null;
+  job.quote = job.snapshot ? job.snapshot : computeQuote(job, state.settings);
+  return job;
+}
+function doExport(){
+  var blob = new Blob([JSON.stringify({ app:"printbook", version:1, settings: state.settings, jobs: state.jobs, legal: state.legal || null }, null, 2)], {type:"application/json"});
+  var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "printbook-backup.json"; a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
+  document.getElementById("dataMsg").textContent = "Backup exported.";
+}
+function doImport(file){
+  var rd = new FileReader();
+  rd.onload = function(){
+    try{
+      var p = JSON.parse(rd.result);
+      if(!p || !Array.isArray(p.jobs)) throw new Error("bad shape");
+      var defs = defaultSettings();
+      if(p.settings && typeof p.settings === "object"){
+        Object.keys(defs).forEach(function(k){ if(k !== "tiers" && p.settings[k] != null && isFinite(num(p.settings[k], NaN)) || typeof p.settings[k] === "string") state.settings[k] = p.settings[k]; });
+        if(Array.isArray(p.settings.tiers) && p.settings.tiers.length){
+          state.settings.tiers = p.settings.tiers.map(function(t){ return { minQty: Math.max(1, Math.floor(num(t.minQty,12))), base: Math.max(0, num(t.base,0)), addColor: Math.max(0, num(t.addColor,0)) }; });
+        }
+      }
+      var clean = [];
+      p.jobs.forEach(function(j){ var c = sanitizeJob(j); if(c) clean.push(c); });
+      state.jobs = clean; state.seeded = true; state.legal = p.legal || null; save();
+      fillSettings(); renderQuote(); renderJobs(); renderDash();
+      document.getElementById("dataMsg").textContent = "Backup imported: " + clean.length + " job(s) restored.";
+    }catch(e){
+      document.getElementById("dataMsg").textContent = "That file could not be imported — it isn't a valid PrintBook backup. Nothing was changed.";
+    }
+  };
+  rd.readAsText(file);
+}
+
+/* ---------- Tabs & init ---------- */
+function showTab(name){
+  ["quote","jobs","dash","settings","help"].forEach(function(t){
+    document.getElementById("tab-" + t).style.display = t === name ? "" : "none";
+  });
+  document.querySelectorAll("#tabs button").forEach(function(b){ b.classList.toggle("on", b.getAttribute("data-tab") === name); });
+  if(name === "jobs") renderJobs();
+  if(name === "dash") renderDash();
+  if(name === "settings") fillSettings();
+}
+function init(){
+  load();
+  if(!state.seeded && !state.jobs.length) seedDemo();
+  document.querySelectorAll("#tabs button").forEach(function(b){ b.addEventListener("click", function(){ showTab(b.getAttribute("data-tab")); }); });
+  document.getElementById("hdrShop").textContent = state.settings.shopName || "";
+  document.getElementById("qDate").value = todayStr();
+  addLocRow("screen", "Front", 2, 7500);
+  ["qCustomer","qJobName","qGarment","qDate","qDue","qQty","qBlank","qDeposit","qCustomPrice"].forEach(function(id){
+    document.getElementById(id).addEventListener("input", renderQuote);
+  });
+  document.getElementById("addLocBtn").addEventListener("click", function(){ addLocRow("screen", "", 1, 7500); });
+  document.getElementById("qOverride").addEventListener("change", renderQuote);
+  document.getElementById("saveQuoteBtn").addEventListener("click", saveQuote);
+  document.getElementById("printQuoteBtn").addEventListener("click", function(){
+    var c = currentQuote();
+    var tmp = { customer: c.inp.customer || "Walk-in customer", jobName: c.inp.jobName || "Untitled job", garment: c.inp.garment,
+      date: c.inp.date, due: c.inp.due, qty: c.inp.qty, deposit: c.inp.deposit, collected: 0, quote: c.q };
+    printJob(tmp);
+  });
+  document.getElementById("jobFilter").addEventListener("change", renderJobs);
+  document.getElementById("jobSearch").addEventListener("input", renderJobs);
+  document.getElementById("saveSettingsBtn").addEventListener("click", function(){ readSettings(true); save(); document.getElementById("hdrShop").textContent = state.settings.shopName; renderQuote(); });
+  document.getElementById("addTierBtn").addEventListener("click", function(){ readSettings(false); state.settings.tiers.push({minQty:500, base:1.10, addColor:0.35}); save(); fillSettings(); });
+  document.getElementById("exportBtn").addEventListener("click", doExport);
+  document.getElementById("importBtn").addEventListener("click", function(){ document.getElementById("importFile").click(); });
+  document.getElementById("importFile").addEventListener("change", function(e){ if(e.target.files[0]) doImport(e.target.files[0]); e.target.value = ""; });
+  document.getElementById("clearDemoBtn").addEventListener("click", function(){
+    state.jobs = state.jobs.filter(function(j){ return !j.demo; }); save(); renderJobs(); renderDash();
+    document.getElementById("dataMsg").textContent = "Sample jobs cleared.";
+  });
+  document.getElementById("eraseBtn").addEventListener("click", function(){
+    if(!confirm("Erase ALL PrintBook data (jobs and settings) on this device?")) return;
+    localStorage.removeItem(LS_KEY); state = blankState(); state.seeded = true; save();
+    fillSettings(); renderQuote(); renderJobs(); renderDash();
+    document.getElementById("dataMsg").textContent = "Everything erased.";
+  });
+  renderQuote(); renderJobs(); renderDash();
+}
+init();
+window.PB = { computeQuote: computeQuote, tierFor: tierFor, getState: function(){ return state; }, sanitizeJob: sanitizeJob, balanceOf: balanceOf, profitBasis: profitBasis, defaultSettings: defaultSettings, shopIsPlaceholder: shopIsPlaceholder, quoteOf: quoteOf, quoteSheetHTML: quoteSheetHTML };
+</script>
+
+<!-- ===== White Wolf Digital legal pattern (Terms v1.0) ===== -->
+<style>
+#legalOverlay{position:fixed;inset:0;z-index:99999;background:rgba(10,12,16,.72);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:18px 12px}
+#legalOverlay .legal-box{background:#fff;color:#14181f;max-width:560px;width:100%;border-radius:14px;padding:22px 20px;margin:auto;box-shadow:0 12px 40px rgba(0,0,0,.4);position:relative}
+#legalOverlay h2{margin:0 0 2px;font-size:22px}
+#legalOverlay h3{margin:0 0 12px;font-size:17px}
+#legalOverlay .legal-sum{font-size:16px;line-height:1.55;margin:10px 0}
+#legalOverlay .legal-sum p{margin:4px 0;font-weight:600}
+#legalOverlay .legal-note{background:#fff4d6;border:1px solid #e5c96a;border-radius:8px;padding:8px 10px;margin:8px 0;font-size:14px}
+#legalAgreeBtn{min-height:52px;width:100%;font-size:17px;font-weight:700;margin-top:14px;cursor:pointer}
+#legalAgreeBtn:disabled{opacity:.45;cursor:not-allowed}
+#legalOverlay .legal-check{display:flex;gap:10px;align-items:flex-start;margin-top:16px;font-size:15px;line-height:1.45;cursor:pointer;text-align:left}
+#legalOverlay .legal-check input{width:22px;height:22px;min-width:22px;margin:2px 0 0;cursor:pointer}
+#legalOverlay .legal-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+#legalOverlay .legal-row button{min-height:48px;flex:1 1 200px;cursor:pointer;font-size:15px}
+#legalFullView{position:absolute;inset:0;background:#fff;border-radius:14px;display:none;flex-direction:column;overflow:hidden}
+#legalFullView .legal-full-head{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid #ddd}
+#legalFullText{overflow:auto;padding:14px 18px;font-size:14.5px;line-height:1.55;text-align:left}
+#legalBackBtn{min-height:48px;min-width:88px;cursor:pointer;font-size:15px;font-weight:700}
+#legalCard{text-align:left;font-size:14.5px;line-height:1.55}
+#legalCard h3{margin:16px 0 6px}
+#legalCard ul{margin:6px 0 6px 18px;padding:0}
+#legalPageBtn{min-height:48px;cursor:pointer;font-size:15px;font-weight:700;width:100%}
+.legal-scrollbox{max-height:46vh;overflow:auto;border:1px solid #ddd;border-radius:8px;padding:10px 14px;margin-top:8px}
+</style>
+<script>
+"use strict";
+/* ===== Legal pattern: first-run Terms acceptance + Settings > Legal ===== */
+var TERMS_VERSION = "1.0";
+var LEGAL_APP_NAME = "PrintBook";
+var LEGAL_KEY = "printbook_v1";
+var LEGAL_KEYS = ["printbook_v1"];
+var LEGAL_GLOBAL = "state";
+var LEGAL_HAS_DISCLAIMER = true;
+var LEGAL_SETTINGS_SEL = "#tab-settings";
+var LEGAL_TERMS_HTML = "<h2>Terms of Use \u2014 White Wolf Digital Apps</h2>\n<p><strong>Version 1.0 (DRAFT \u2014 pending attorney review)</strong> <strong>Seller: White Wolf Tree Service LLC, selling digital products under the name &quot;White Wolf Digital&quot;</strong> <strong>Contact: whitewolfoklahoma@gmail.com</strong></p>\n<h3>1. What you&#x27;re buying</h3>\n<p>Our apps (including ForgeFit AI, ForgeKitchen, TreeBid Pro, SnowBid, WashPrice Pro, RoofSquares, JobProfit Tracker, PastureLedger, and the other titles sold under White Wolf Digital) are single-file software tools. When you buy one, you are buying a <strong>license to use the file</strong>, not ownership of the software itself.</p>\n<h3>2. Your license</h3>\n<ul>\n<li>You may use the app for your own personal or business work.</li>\n<li>You may open it on your own devices (phone, tablet, computer) and move your own data between them using the app&#x27;s built-in backup/export tools.</li>\n<li>You may <strong>not</strong> resell, redistribute, give away, upload, or share the app file (or a copy of it) with anyone else \u2014 including posting it online, bundling it with other products, or selling access to it.</li>\n<li>You may <strong>not</strong> claim the app as your own work, remove its branding or notices, or use it to build a competing product for resale.</li>\n<li>One purchase = one buyer. A business purchase covers the buyer and their own employees using it for that business&#x27;s work; it does not cover other businesses.</li>\n</ul>\n<h3>3. Your data stays yours \u2014 and stays on your device</h3>\n<ul>\n<li>The current versions of our apps run <strong>entirely on your device</strong>. They have no accounts, no sign-in, no analytics, and they collect, transmit, and store <strong>none</strong> of your information on any server. We never see your data.</li>\n<li>Your records are stored in your browser/app storage on your device. **You are responsible for backing them up** using the app&#x27;s export tools. If you clear your browser data, lose your device, or uninstall the app, your records may be permanently lost, and we cannot recover them \u2014 we never had a copy.</li>\n<li>Files you export (backups, quotes, PDFs) are under your control. Where you store or send them is up to you.</li>\n</ul>\n<h3>4. Estimates are tools, not guarantees</h3>\n<p>Every number our apps produce \u2014 bids, prices, costs, calorie targets, projections, schedules, totals \u2014 is an <strong>estimate generated from the information you enter and the settings you choose</strong>. Outputs are aids for your own judgment, not guarantees of price, profit, outcome, or result. You are responsible for checking any output before relying on it (see also the disclaimer that applies to your app: Health Disclaimer for fitness/nutrition apps, Estimator Disclaimer for contractor tools). If an input is wrong, the output will be wrong.</p>\n<h3>5. Acceptable use</h3>\n<p>Don&#x27;t use the apps to break the law, infringe anyone&#x27;s rights, or misrepresent quotes, invoices, or records to your own customers. For the fitness apps, the guardrails in the app (healthy-rate limits, calorie floor) are part of the product \u2014 don&#x27;t treat the app as a way around them.</p>\n<h3>6. Provided &quot;as is&quot;</h3>\n<p>The apps are provided <strong>&quot;as is&quot; and &quot;as available,&quot; without warranties of any kind</strong>, express or implied \u2014 including merchantability, fitness for a particular purpose, accuracy of calculations, and uninterrupted or error-free operation \u2014 to the maximum extent allowed by law. Software has bugs; browsers change; we work to fix problems but do not promise any app is error-free or will work on every device or browser forever.</p>\n<h3>7. Limitation of liability</h3>\n<p>To the maximum extent allowed by law:</p>\n<ul>\n<li>We are **not liable for indirect, incidental, special, or consequential damages** \u2014 including lost profits, lost or mispriced jobs, lost data, or business interruption \u2014 arising from use of the apps.</li>\n<li>Our total liability for any claim connected to an app is limited to the <strong>amount you paid for that app</strong>.</li>\n<li>Nothing in these terms limits liability that cannot legally be limited.</li>\n</ul>\n<h3>8. Refunds</h3>\n<p>Refunds are handled <strong>by the storefront you bought from, under that storefront&#x27;s policy</strong> \u2014 Gumroad&#x27;s refund policy for Gumroad purchases, and Google Play&#x27;s refund policy for Play purchases. These terms do not add to, replace, or override the storefront&#x27;s refund rules. If a file is defective and won&#x27;t open, contact us at whitewolfoklahoma@gmail.com and we&#x27;ll fix or replace the file.</p>\n<h3>9. Updates and changes to these terms</h3>\n<ul>\n<li>We may release updated versions of an app. Updates may add, change, or remove features.</li>\n<li>We may update these terms. The version you agreed to is recorded in the app (version number and date) at first-run acceptance. If terms change, the app may ask you to accept the new version once on next open. Updated terms apply going forward, not retroactively.</li>\n<li>If you don&#x27;t agree to an updated version of the terms, stop using the app.</li>\n</ul>\n<h3>10. Governing law</h3>\n<p>These terms are governed by the laws of the <strong>State of Oklahoma</strong>, USA. (Attorney to confirm governing law and venue before publication.)</p>\n<h3>11. Contact</h3>\n<p>White Wolf Tree Service LLC (White Wolf Digital) \u2014 whitewolfoklahoma@gmail.com.</p>\n<h3>CONNECTED FEATURES \u2014 takes effect only when these features ship</h3>\n<p><em>The sections below apply only to future connected features (device sync via Health Connect, AI voice logging, and the AI Goal Preview in ForgeFit). They do not apply to the current offline versions, which never transmit data.</em></p>\n<ul>\n<li><strong>Opt-in only.</strong> Connected features are off by default. Each one asks for your separate, explicit consent \u2014 on its own consent screen, in plain language \u2014 before anything leaves your device. Declining never disables the app&#x27;s offline features.</li>\n<li><strong>What gets sent.</strong> Only what the consent screen names, only when you use the feature: for example, a meal description (text, or audio only if cloud transcription is on) for AI voice logging, or the single photo you choose for an AI Goal Preview.</li>\n<li><strong>No retention by us.</strong> Our relay service passes your request to the named AI provider and keeps nothing \u2014 no copies of your photos, audio, transcripts, or entries are stored on our servers. Provider handling is described on the consent screen and in the Privacy Policy.</li>\n<li><strong>Health data stays on the device.</strong> Device sync (Health Connect) reads your health data on your phone and stores it in the app on your phone. It is not uploaded to us.</li>\n<li><strong>Allowances.</strong> Some connected features run on third-party AI services we pay for per use, so they may include a monthly allowance described in the app (for example, a set number of AI previews or voice entries per month), with optional additional credits. Allowances and pricing will be shown in the app before you use the feature; they are not a subscription unless the app says so in plain words.</li>\n<li><strong>Permissions.</strong> Connected features may request device permissions (such as Health Connect access or the microphone) at the moment you first use them. You can revoke permissions any time in your device settings; the related feature will simply stop working.</li>\n</ul>";
+var LEGAL_DISC_HTML = "<h2>Estimator Disclaimer \u2014 Contractor &amp; Trade Tools</h2>\n<p><strong>Applies to: TreeBid Pro, SnowBid, WashPrice Pro, RoofSquares, JobProfit Tracker, FieldForms Toolkit, PaintPro, FenceDeck, MarketMaker, and the other estimating/pricing tools sold under White Wolf Digital \u2014 including bundles that contain them.</strong></p>\n<h3>Estimating aids, not finished quotes</h3>\n<ul>\n<li>These apps are <strong>estimating and record-keeping aids</strong>. Every bid, price, cost, measurement, and total they produce is an **estimate based on the information and rates you enter**.</li>\n<li>**You \u2014 the business owner \u2014 are responsible for verifying everything before you quote a customer:** measurements and quantities, site conditions, your current material and labor costs, your rates and margins, taxes, permit and license requirements, disposal rules, and any contract terms.</li>\n<li>Default rates, presets, and sample data included in the apps are starting points only. They are not market prices, not industry standards, and not a recommendation of what you should charge.</li>\n<li>A saved quote keeps the prices in effect when you created it (price snapshot). Changing your presets later does not change saved quotes \u2014 and a saved quote is still your responsibility to review before sending.</li>\n</ul>\n<h3>Specific tools</h3>\n<ul>\n<li><strong>TreeBid Pro:</strong> tree work is dangerous and site-specific. Difficulty factors and presets cannot see the actual tree, lean, rot, targets, or access. Inspect every job in person before final pricing. The &quot;Invoice with Wave&quot; feature is an open-and-paste handoff \u2014 TreeBid does not connect to Wave, and the invoice you send from Wave is yours.</li>\n<li><strong>RoofSquares / measurement tools:</strong> confirm roof measurements and pitch in person or by your usual method before ordering materials.</li>\n<li><strong>SnowBid / seasonal tools:</strong> route times, snowfall amounts, and service pricing vary by storm and site; seasonal contracts are your agreement with your customer, on your terms.</li>\n<li><strong>JobProfit Tracker:</strong> profit figures depend on the costs you enter. The app is not accounting or tax software and does not replace your bookkeeper or accountant.</li>\n</ul>\n<h3>Bottom line</h3>\n<p>If an output and your judgment disagree, trust your judgment \u2014 then fix the input. We are not responsible for jobs won, lost, or mispriced based on app outputs, within the limits of the Terms of Use.</p>";
+var LEGAL_PRIVACY_HTML = "<h3>Privacy</h3><p>This app has no accounts and no sign-in. It collects no data, runs no analytics, and sends nothing anywhere &mdash; everything you enter is stored only on this device, in this browser/app storage. We never see your data. You are responsible for backing up your records with the app&rsquo;s export tools; files you export are under your control.</p>";
+var __legalRecord = null;
+var __legalOrigSet = localStorage.setItem.bind(localStorage);
+function __legalReadStored(){
+  try { var raw = localStorage.getItem(LEGAL_KEY); if(!raw) return null; var p = JSON.parse(raw); return (p && typeof p === "object") ? p : null; } catch(e){ return null; }
+}
+function __legalAdopt(rec){ if(rec && rec.termsVersion){ __legalRecord = { termsVersion: String(rec.termsVersion), acceptedDate: rec.acceptedDate || "", disclaimerShown: !!rec.disclaimerShown }; } }
+(function(){
+  var stored = __legalReadStored();
+  if (stored && stored.legal) __legalAdopt(stored.legal);
+})();
+/* Keep the acceptance inside the app's own saved state: adopt any legal record the app writes,
+   and re-attach the known record when an app save would otherwise drop it. */
+localStorage.setItem = function(k, v){
+  if (LEGAL_KEYS.indexOf(k) >= 0 && typeof v === "string"){
+    try {
+      var p = JSON.parse(v);
+      if (p && typeof p === "object" && !Array.isArray(p)){
+        if (p.legal) __legalAdopt(p.legal);
+        else if (__legalRecord && k === LEGAL_KEY){ p.legal = __legalRecord; v = JSON.stringify(p); }
+      }
+    } catch(e){}
+  }
+  return __legalOrigSet(k, v);
+};
+function __legalVersionOlder(a, b){
+  var pa = String(a||"0").split("."), pb = String(b||"0").split(".");
+  for (var i = 0; i < Math.max(pa.length, pb.length); i++){ var x = parseInt(pa[i]||"0",10)||0, y = parseInt(pb[i]||"0",10)||0; if (x < y) return true; if (x > y) return false; }
+  return false;
+}
+function __legalAcceptLine(){
+  if (__legalRecord && __legalRecord.acceptedDate) return "You agreed to Terms v" + __legalRecord.termsVersion + " on " + __legalRecord.acceptedDate + ".";
+  return "Terms acceptance not yet recorded.";
+}
+function __legalRenderAcceptLine(){
+  var el = document.getElementById("legalAcceptLine");
+  if (el) el.textContent = __legalAcceptLine();
+}
+function __legalBuildPage(){
+  var sec = document.querySelector(LEGAL_SETTINGS_SEL);
+  if (!sec || document.getElementById("legalCard")) return;
+  var wrap = document.createElement("div");
+  wrap.className = "card";
+  wrap.style.marginTop = "14px";
+  var discSection = LEGAL_HAS_DISCLAIMER ? '<h3>Estimator Disclaimer</h3><div class="legal-scrollbox">' + LEGAL_DISC_HTML + "</div>" : "";
+  wrap.innerHTML = '<h2>Legal</h2>'
+    + '<p><button type="button" id="legalPageBtn">Legal &mdash; Terms, ' + (LEGAL_HAS_DISCLAIMER ? "Disclaimer" : "") + ' &amp; Privacy</button></p>'
+    + '<div id="legalCard" style="display:none">'
+    + '<p id="legalAcceptLine"></p>'
+    + "<h3>Terms of Use</h3>" + '<div class="legal-scrollbox">' + LEGAL_TERMS_HTML + "</div>"
+    + discSection
+    + LEGAL_PRIVACY_HTML
+    + '<p><strong>Sold by:</strong> White Wolf Tree Service LLC (White Wolf Digital) &mdash; whitewolfoklahoma@gmail.com</p>'
+    + "</div>";
+  sec.appendChild(wrap);
+  document.getElementById("legalPageBtn").addEventListener("click", function(){
+    var card = document.getElementById("legalCard");
+    card.style.display = (card.style.display === "none") ? "block" : "none";
+    __legalRenderAcceptLine();
+    if (card.style.display === "block"){ try { card.scrollIntoView({block:"start"}); } catch(e){} }
+  });
+  __legalRenderAcceptLine();
+}
+function __legalShowFull(kind){
+  var fv = document.getElementById("legalFullView");
+  var ft = document.getElementById("legalFullText");
+  var fh = document.getElementById("legalFullTitle");
+  if (!fv || !ft) return;
+  if (kind === "disclaimer"){ ft.innerHTML = LEGAL_DISC_HTML; if (fh) fh.textContent = "Estimator Disclaimer"; }
+  else { ft.innerHTML = LEGAL_TERMS_HTML; if (fh) fh.textContent = "Terms of Use"; }
+  fv.style.display = "flex";
+  ft.scrollTop = 0;
+}
+function __legalMaybePrompt(){
+  var stored = __legalReadStored();
+  var rec = stored && stored.legal ? stored.legal : null;
+  if (rec) __legalAdopt(rec);
+  var need = false, updated = false;
+  if (!rec) need = true;
+  else if (__legalVersionOlder(rec.termsVersion, TERMS_VERSION)){ need = true; updated = true; }
+  var ov = document.getElementById("legalOverlay");
+  if (!ov) return;
+  if (need){
+    var note = document.getElementById("legalUpdatedNote");
+    if (note) note.style.display = updated ? "block" : "none";
+    var chk0 = document.getElementById("legalAgreeCheck");
+    var ab0 = document.getElementById("legalAgreeBtn");
+    if (chk0) chk0.checked = false;
+    if (ab0) ab0.disabled = true;
+    ov.style.display = "flex";
+  } else {
+    ov.style.display = "none";
+  }
+  __legalRenderAcceptLine();
+}
+function __legalAgree(){
+  var chkA = document.getElementById("legalAgreeCheck");
+  if (chkA && !chkA.checked) return;
+  var d = new Date();
+  var iso = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+  __legalRecord = { termsVersion: TERMS_VERSION, acceptedDate: iso, disclaimerShown: LEGAL_HAS_DISCLAIMER };
+  try { var g = window[LEGAL_GLOBAL]; if (g && typeof g === "object") g.legal = __legalRecord; } catch(e){}
+  try {
+    var stored = __legalReadStored();
+    if (stored){ stored.legal = __legalRecord; __legalOrigSet(LEGAL_KEY, JSON.stringify(stored)); }
+    else { var g2 = window[LEGAL_GLOBAL]; if (g2 && typeof g2 === "object") __legalOrigSet(LEGAL_KEY, JSON.stringify(g2)); }
+  } catch(e){}
+  var ov = document.getElementById("legalOverlay");
+  if (ov) ov.style.display = "none";
+  __legalRenderAcceptLine();
+}
+function __legalBuildOverlay(){
+  if (document.getElementById("legalOverlay")) return;
+  var ov = document.createElement("div");
+  ov.id = "legalOverlay";
+  ov.style.display = "none";
+  var discBtn = LEGAL_HAS_DISCLAIMER ? '<button type="button" id="legalDisclaimerBtn">Read the Estimator Disclaimer</button>' : "";
+  var followLine = LEGAL_HAS_DISCLAIMER
+    ? "The full Terms and Disclaimer are one tap away, now and any time in Settings &rarr; Legal."
+    : "The full Terms are one tap away, now and any time in Settings &rarr; Legal.";
+  var checkLabel = LEGAL_HAS_DISCLAIMER
+    ? "I have read the disclaimer and I agree to the Terms of Use"
+    : "I have read and I agree to the Terms of Use";
+  ov.innerHTML = '<div class="legal-box" role="dialog" aria-modal="true" aria-label="Terms of Use">'
+    + "<h2>" + LEGAL_APP_NAME + "</h2><h3>Terms of Use</h3>"
+    + '<div class="legal-note" id="legalUpdatedNote" style="display:none">Our terms were updated (v' + TERMS_VERSION + ").</div>"
+    + '<div class="legal-sum"><p>Your data stays on your device.</p>'
+    + "<p>Estimates are aids, not guarantees.</p>"
+    + "<p>You're responsible for checking outputs before you rely on them.</p></div>"
+    + "<p>" + followLine + "</p>"
+    + '<div class="legal-row"><button type="button" id="legalTermsBtn">Read the full Terms</button>' + discBtn + "</div>"
+    + '<label class="legal-check"><input type="checkbox" id="legalAgreeCheck"> <span>' + checkLabel + '</span></label>'
+    + '<button type="button" id="legalAgreeBtn" disabled>I Agree</button>'
+    + '<div id="legalFullView"><div class="legal-full-head"><button type="button" id="legalBackBtn">&larr; Back</button><strong id="legalFullTitle">Terms of Use</strong></div><div id="legalFullText"></div></div>'
+    + "</div>";
+  document.body.appendChild(ov);
+  document.getElementById("legalAgreeBtn").addEventListener("click", __legalAgree);
+  var agreeChk = document.getElementById("legalAgreeCheck");
+  var agreeBtn = document.getElementById("legalAgreeBtn");
+  if (agreeChk && agreeBtn) agreeChk.addEventListener("change", function(){ agreeBtn.disabled = !agreeChk.checked; });
+  document.getElementById("legalTermsBtn").addEventListener("click", function(){ __legalShowFull("terms"); });
+  var db = document.getElementById("legalDisclaimerBtn");
+  if (db) db.addEventListener("click", function(){ __legalShowFull("disclaimer"); });
+  document.getElementById("legalBackBtn").addEventListener("click", function(){ document.getElementById("legalFullView").style.display = "none"; });
+}
+__legalBuildOverlay();
+__legalBuildPage();
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function(){ __legalBuildOverlay(); __legalBuildPage(); __legalMaybePrompt(); });
+else __legalMaybePrompt();
+</script>
+
+</body>
+</html>
